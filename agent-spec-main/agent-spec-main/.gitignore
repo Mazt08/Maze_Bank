@@ -1,0 +1,6 @@
+progress-report-result.md
+cover-letter-result.md
+node_modules/
+dist/
+.claude/*
+!.claude/commands/

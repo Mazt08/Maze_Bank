@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Maze Bank</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <div class="brand-icon">M</div>
+                    <span>MAZE BANK</span>
+                </a>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="dashboard.html" class="sidebar-nav-link active">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="transfer.html" class="sidebar-nav-link">
+                        <span>Transfer Funds</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="history.html" class="sidebar-nav-link">
+                        <span>Statements</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item d-none" id="adminNav">
+                    <a href="admin.html" class="sidebar-nav-link">
+                        <span>Admin Console</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Loading...</div>
+                        <div class="sidebar-user-role" id="sidebarUserRole">USER</div>
+                    </div>
+                    <button id="logoutBtn" class="btn-logout" title="Sign Out">Sign Out</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Welcome back, <span id="userGreeting">Customer</span></h1>
+                    <div class="page-subtitle">Commercial & Personal Account Portfolio</div>
+                </div>
+                <div>
+                    <a href="transfer.html" class="btn btn-primary">Make a Transfer</a>
+                </div>
+            </div>
+
+            <!-- Single Account Balance Card -->
+            <div class="account-card">
+                <div class="account-card-info">
+                    <div class="account-type-label">Primary Checking Account</div>
+                    <div class="account-number" id="accountNumber">Loading...</div>
+                    <div class="account-balance" id="accountBalance">$0.00</div>
+                </div>
+                <div class="account-actions">
+                    <a href="transfer.html" class="btn">Send Money</a>
+                    <a href="history.html" class="btn">Full Statement</a>
+                </div>
+            </div>
+
+            <!-- Recent Activity Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Transactions</h2>
+                    <a href="history.html" class="auth-footer" style="margin: 0; font-weight: 600;">View All &rarr;</a>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Details</th>
+                                    <th style="text-align: right;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTransactionsBody">
+                                <tr>
+                                    <td colspan="5" class="empty-state">Loading transactions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

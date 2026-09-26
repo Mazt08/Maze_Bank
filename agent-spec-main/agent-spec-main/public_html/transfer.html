@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer Funds - Maze Bank</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-brand">
+                    <div class="brand-icon">M</div>
+                    <span>MAZE BANK</span>
+                </a>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="dashboard.html" class="sidebar-nav-link">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="transfer.html" class="sidebar-nav-link active">
+                        <span>Transfer Funds</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="history.html" class="sidebar-nav-link">
+                        <span>Statements</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item d-none" id="adminNav">
+                    <a href="admin.html" class="sidebar-nav-link">
+                        <span>Admin Console</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div>
+                        <div class="sidebar-user-name" id="sidebarUserName">Loading...</div>
+                        <div class="sidebar-user-role" id="sidebarUserRole">USER</div>
+                    </div>
+                    <button id="logoutBtn" class="btn-logout" title="Sign Out">Sign Out</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Funds Transfer</h1>
+                    <div class="page-subtitle">Send electronic wire or peer-to-peer payments immediately.</div>
+                </div>
+            </div>
+
+            <div class="card" style="max-width: 600px;">
+                <div class="card-header">
+                    <h2 class="card-title">Transfer Details</h2>
+                    <span class="tabular-nums" style="font-size: 13px; color: var(--text-muted);">
+                        Available: <strong id="availableBalance" style="color: var(--primary);">$0.00</strong>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div id="alertBox" class="alert d-none"></div>
+
+                    <form id="transferForm" autocomplete="off">
+                        <div class="form-group">
+                            <label for="fromAccount" class="form-label">From Account</label>
+                            <input type="text" id="fromAccount" class="form-control" readonly style="background-color: var(--bg-page);">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="toAccount" class="form-label">Recipient Account Number</label>
+                            <input type="text" id="toAccount" class="form-control" placeholder="e.g. MZB-10000002" required autofocus>
+                            <div class="form-helper">Enter the full destination account identifier</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Transfer Amount ($ USD)</label>
+                            <input type="number" id="amount" class="form-control tabular-nums" placeholder="0.00" step="0.01" min="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description" class="form-label">Transfer Memo / Description</label>
+                            <input type="text" id="description" class="form-control" placeholder="e.g. Invoice payment, dinner split" maxlength="255">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Execute Transfer</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/transfer.js"></script>
+</body>
+</html>

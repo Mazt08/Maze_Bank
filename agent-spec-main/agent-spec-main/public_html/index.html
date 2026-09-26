@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Maze Bank Commercial Banking</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-header-brand">
+            <a href="index.html" class="brand-logo">
+                <div class="brand-icon">M</div>
+                <span>MAZE BANK</span>
+            </a>
+            <div class="brand-subtitle">Commercial & Private Banking</div>
+        </div>
+
+        <div class="auth-card">
+            <h1 class="auth-card-title">Account Sign In</h1>
+            <p class="auth-card-description">Access your personal and commercial banking portal.</p>
+
+            <div id="alertBox" class="alert d-none"></div>
+
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" placeholder="Enter your username" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="register.html">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>
