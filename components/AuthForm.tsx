@@ -18,6 +18,9 @@ interface Props {
   mode: "login" | "register";
 }
 
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])\S{8,64}$/;
+const PASSWORD_HINT = "8-64 characters with uppercase, lowercase, number, and symbol";
+
 export default function AuthForm({ mode }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -25,6 +28,7 @@ export default function AuthForm({ mode }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -40,8 +44,12 @@ export default function AuthForm({ mode }: Props) {
             setError("Full name is required.");
             return;
           }
-          if (password.length < 8) {
-            setError("Password must be at least 8 characters.");
+          if (!PASSWORD_PATTERN.test(password)) {
+            setError(`Password must contain ${PASSWORD_HINT}.`);
+            return;
+          }
+          if (password !== confirmPassword) {
+            setError("Passwords do not match.");
             return;
           }
           const cred = await createUserWithEmailAndPassword(
@@ -154,12 +162,41 @@ export default function AuthForm({ mode }: Props) {
           type="password"
           autoComplete={isRegister ? "new-password" : "current-password"}
           required
+            minLength={isRegister ? 8 : undefined}
+            maxLength={isRegister ? 64 : undefined}
+            pattern={isRegister ? PASSWORD_PATTERN.source : undefined}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-          placeholder={isRegister ? "Minimum 8 characters" : "••••••••"}
+            placeholder={isRegister ? "Strong password" : "••••••••"}
         />
+          {isRegister && (
+            <p className="text-xs text-gray-400 mt-1">{PASSWORD_HINT}</p>
+          )}
       </div>
+
+        {isRegister && (
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Confirm password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              maxLength={64}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="Repeat your password"
+            />
+          </div>
+        )}
 
       {error && (
         <p
