@@ -86,10 +86,10 @@ function getStrength(password: string): Strength | null {
 }
 
 const STRENGTH_META: Record<Strength, { label: string; color: string; bars: number }> = {
-  weak:   { label: "Weak",   color: "bg-red-500",   bars: 1 },
-  fair:   { label: "Fair",   color: "bg-orange-400", bars: 2 },
-  good:   { label: "Good",   color: "bg-yellow-400", bars: 3 },
-  strong: { label: "Strong", color: "bg-green-500",  bars: 4 },
+  weak: { label: "Weak", color: "bg-red-500", bars: 1 },
+  fair: { label: "Fair", color: "bg-orange-400", bars: 2 },
+  good: { label: "Good", color: "bg-yellow-400", bars: 3 },
+  strong: { label: "Strong", color: "bg-green-500", bars: 4 },
 };
 
 function PasswordStrengthMeter({ password }: { password: string }) {
@@ -97,10 +97,10 @@ function PasswordStrengthMeter({ password }: { password: string }) {
   if (!strength) return null;
   const { label, color, bars } = STRENGTH_META[strength];
   const textColor =
-    strength === "weak"   ? "text-red-500"    :
-    strength === "fair"   ? "text-orange-500" :
-    strength === "good"   ? "text-yellow-600" :
-    "text-green-600";
+    strength === "weak" ? "text-red-500" :
+      strength === "fair" ? "text-orange-500" :
+        strength === "good" ? "text-yellow-600" :
+          "text-green-600";
 
   return (
     <div className="mt-2" aria-live="polite">
@@ -108,9 +108,8 @@ function PasswordStrengthMeter({ password }: { password: string }) {
         {[1, 2, 3, 4].map((bar) => (
           <div
             key={bar}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-              bar <= bars ? color : "bg-gray-200"
-            }`}
+            className={`h-1 flex-1 rounded-full transition-all duration-300 ${bar <= bars ? color : "bg-gray-200"
+              }`}
           />
         ))}
       </div>
@@ -140,10 +139,10 @@ export default function AuthForm({ mode }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [name, setName]         = useState("");
-  const [email, setEmail]       = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm]   = useState("");
+  const [confirm, setConfirm] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Track which fields the user has interacted with (blur-triggered errors)
@@ -154,10 +153,10 @@ export default function AuthForm({ mode }: Props) {
   const isRegister = mode === "register";
 
   // Compute live per-field errors only after the field has been touched
-  const nameError     = isRegister && touched.name     ? validateName(name)                  : null;
-  const emailError    = touched.email                  ? validateEmail(email)                 : null;
-  const passwordError = touched.password               ? validatePassword(password)           : null;
-  const confirmError  = isRegister && touched.confirm  ? validateConfirm(password, confirm)  : null;
+  const nameError = isRegister && touched.name ? validateName(name) : null;
+  const emailError = touched.email ? validateEmail(email) : null;
+  const passwordError = touched.password ? validatePassword(password) : null;
+  const confirmError = isRegister && touched.confirm ? validateConfirm(password, confirm) : null;
 
   function touch(field: keyof typeof touched) {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -172,10 +171,10 @@ export default function AuthForm({ mode }: Props) {
 
     // Client-side validation gate before calling Firebase
     if (isRegister) {
-      if (validateName(name))                  return;
-      if (validateEmail(email))                return;
-      if (validatePassword(password))          return;
-      if (validateConfirm(password, confirm))  return;
+      if (validateName(name)) return;
+      if (validateEmail(email)) return;
+      if (validatePassword(password)) return;
+      if (validateConfirm(password, confirm)) return;
     } else {
       if (validateEmail(email)) return;
       if (!password) { setSubmitError("Password is required."); return; }
@@ -245,9 +244,8 @@ export default function AuthForm({ mode }: Props) {
             onChange={(e) => setName(e.target.value)}
             onBlur={() => touch("name")}
             aria-invalid={!!nameError}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-              nameError ? "border-red-400 bg-red-50" : "border-gray-300"
-            }`}
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${nameError ? "border-red-400 bg-red-50" : "border-gray-300"
+              }`}
             placeholder="Michael De Santa"
           />
           <FieldError message={nameError} />
@@ -268,9 +266,8 @@ export default function AuthForm({ mode }: Props) {
           onChange={(e) => setEmail(e.target.value)}
           onBlur={() => touch("email")}
           aria-invalid={!!emailError}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-            emailError ? "border-red-400 bg-red-50" : "border-gray-300"
-          }`}
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${emailError ? "border-red-400 bg-red-50" : "border-gray-300"
+            }`}
           placeholder="you@example.com"
         />
         <FieldError message={emailError} />
@@ -290,9 +287,8 @@ export default function AuthForm({ mode }: Props) {
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() => touch("password")}
           aria-invalid={!!passwordError}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-            passwordError ? "border-red-400 bg-red-50" : "border-gray-300"
-          }`}
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"
+            }`}
           placeholder={isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"}
         />
         {isRegister && <PasswordStrengthMeter password={password} />}
@@ -319,13 +315,12 @@ export default function AuthForm({ mode }: Props) {
             onChange={(e) => setConfirm(e.target.value)}
             onBlur={() => touch("confirm")}
             aria-invalid={!!confirmError}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
-              confirmError
-                ? "border-red-400 bg-red-50"
-                : confirm && !confirmError
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${confirmError
+              ? "border-red-400 bg-red-50"
+              : confirm && !confirmError
                 ? "border-green-400"
                 : "border-gray-300"
-            }`}
+              }`}
             placeholder="Re-enter your password"
           />
           {confirm && !confirmError && (
@@ -358,8 +353,8 @@ export default function AuthForm({ mode }: Props) {
             ? "Creating account…"
             : "Signing in…"
           : isRegister
-          ? "Create account"
-          : "Sign in"}
+            ? "Create account"
+            : "Sign in"}
       </button>
     </form>
   );
