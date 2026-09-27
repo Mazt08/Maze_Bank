@@ -31,8 +31,8 @@ export async function transferFunds(
   const note = ((formData.get("note") as string) ?? "").trim().slice(0, 200);
 
   // 2. Basic validation
-  if (!toAccountNumber || !/^\d{10}$/.test(toAccountNumber)) {
-    return { error: "Invalid account number. Must be 10 digits." };
+  if (!toAccountNumber || !/^MZB-\d{6}$/i.test(toAccountNumber)) {
+    return { error: "Invalid account number. Use the MZB-000001 format." };
   }
 
   const amountDollars = parseFloat(amountStr);
@@ -85,11 +85,13 @@ export async function transferFunds(
       t.set(txRef, {
         fromUid: sender.uid,
         toUid: recipient.uid,
-        fromName: sender.name,
-        toName: recipient.name,
+        fromAccount: sender.accountNumber,
+        toAccount: recipient.accountNumber,
         amount: amountCents,
+        type: "transfer",
+        status: "completed",
         note,
-        timestamp: FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
       });
     });
 

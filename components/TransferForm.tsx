@@ -48,14 +48,13 @@ export default function TransferForm() {
             id="accountNumber"
             name="accountNumber"
             type="text"
-            inputMode="numeric"
-            pattern="\d{10}"
+            pattern="MZB-\d{6}"
             maxLength={10}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent font-mono"
-            placeholder="0000000000"
+            placeholder="MZB-000001"
           />
-          <p className="text-xs text-gray-400 mt-1">10-digit account number</p>
+          <p className="text-xs text-gray-400 mt-1">MZB- plus 6 digits</p>
         </div>
 
         <div>

@@ -82,7 +82,7 @@ export async function registerUser(
         uid,
         name,
         email,
-        balance: 100_000, // $1,000.00 welcome credit in cents
+        balance: 500_000, // $5,000.00 welcome credit in cents
         accountNumber,
         createdAt: FieldValue.serverTimestamp(),
       });

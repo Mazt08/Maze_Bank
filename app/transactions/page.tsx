@@ -64,11 +64,11 @@ export default async function TransactionsPage() {
                     {transactions.map((tx) => {
                       const isSender = tx.fromUid === user.uid;
                       const sign = isSender ? "-" : "+";
-                      const counterpart = isSender ? tx.toName : tx.fromName;
+                      const counterpart = isSender ? tx.toAccount : tx.fromAccount;
                       const amountColor = isSender
                         ? "text-red-600"
                         : "text-green-600";
-                      const date = new Date(tx.timestamp).toLocaleDateString(
+                      const date = new Date(tx.createdAt).toLocaleDateString(
                         "en-US",
                         {
                           month: "short",
@@ -117,11 +117,11 @@ export default async function TransactionsPage() {
                 {transactions.map((tx) => {
                   const isSender = tx.fromUid === user.uid;
                   const sign = isSender ? "-" : "+";
-                  const counterpart = isSender ? tx.toName : tx.fromName;
+                  const counterpart = isSender ? tx.toAccount : tx.fromAccount;
                   const amountColor = isSender
                     ? "text-red-600"
                     : "text-green-600";
-                  const date = new Date(tx.timestamp).toLocaleDateString(
+                  const date = new Date(tx.createdAt).toLocaleDateString(
                     "en-US",
                     { month: "short", day: "numeric", year: "numeric" }
                   );

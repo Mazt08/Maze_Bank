@@ -20,11 +20,13 @@ export interface TransactionDoc {
   id: string;
   fromUid: string;
   toUid: string;
-  fromName: string;
-  toName: string;
+  fromAccount: string;
+  toAccount: string;
   amount: number; // cents
+  type: "transfer" | "deposit" | "withdrawal";
+  status: "completed" | "pending" | "failed";
   note: string;
-  timestamp: Timestamp;
+  createdAt: Timestamp;
 }
 
 // Serialisable versions safe to pass from server → client components
@@ -41,11 +43,13 @@ export interface TransactionData {
   id: string;
   fromUid: string;
   toUid: string;
-  fromName: string;
-  toName: string;
+  fromAccount: string;
+  toAccount: string;
   amount: number;
+  type: "transfer" | "deposit" | "withdrawal";
+  status: "completed" | "pending" | "failed";
   note: string;
-  timestamp: string;
+  createdAt: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -62,7 +66,7 @@ function serializeTransaction(id: string, doc: Omit<TransactionDoc, "id">): Tran
   return {
     ...doc,
     id,
-    timestamp: doc.timestamp?.toDate().toISOString() ?? new Date().toISOString(),
+    createdAt: doc.createdAt?.toDate().toISOString() ?? new Date().toISOString(),
   };
 }
 
@@ -98,13 +102,13 @@ export async function getRecentTransactions(
     adminDb
       .collection("transactions")
       .where("fromUid", "==", uid)
-      .orderBy("timestamp", "desc")
+      .orderBy("createdAt", "desc")
       .limit(limit)
       .get(),
     adminDb
       .collection("transactions")
       .where("toUid", "==", uid)
-      .orderBy("timestamp", "desc")
+      .orderBy("createdAt", "desc")
       .limit(limit)
       .get(),
   ]);
@@ -118,17 +122,19 @@ export async function getRecentTransactions(
     results.push(serializeTransaction(doc.id, doc.data() as Omit<TransactionDoc, "id">));
   }
 
-  // Sort merged results by timestamp descending
+  // Sort merged results by creation time descending
   results.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   return results.slice(0, limit);
 }
 
-/** Generate a random 10-digit account number. */
+/** Generate a display account number with the Maze Bank prefix. */
 export function generateAccountNumber(): string {
-  return Math.floor(1_000_000_000 + Math.random() * 9_000_000_000).toString();
+  return `MZB-${Math.floor(1 + Math.random() * 999_999)
+    .toString()
+    .padStart(6, "0")}`;
 }
 
 /** Format cents as a currency string (e.g., 150000 → "$1,500.00"). */
