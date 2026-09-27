@@ -2,3 +2,7 @@ node_modules
 .env.local
 .next
 tsconfig.tsbuildinfo
+agent-spec-main
+.agents
+.claude
+*firebase-adminsdk*.json

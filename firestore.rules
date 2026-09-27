@@ -2,70 +2,108 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
     function signedIn() {
       return request.auth != null;
     }
 
-    function ownsUser(uid) {
+    /** True when the authenticated user is accessing their own document. */
+    function isOwner(uid) {
       return signedIn() && request.auth.uid == uid;
     }
 
-    function validUser() {
-      return request.resource.data.keys().hasOnly([
-          'uid', 'name', 'email', 'accountNumber', 'balance', 'createdAt'
-        ])
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.name is string
-        && request.resource.data.name.size() >= 1
-        && request.resource.data.name.size() <= 100
-        && request.resource.data.email is string
-        && request.resource.data.email.size() <= 320
-        && request.resource.data.accountNumber is string
-        && request.resource.data.accountNumber.matches('^MZB-[0-9]{6}$')
-        && request.resource.data.balance is number
-        && request.resource.data.balance >= 0
-        && request.resource.data.createdAt is timestamp;
+    /**
+     * True when the calling user has role === "admin" in their own user doc.
+     * Uses get() — counted as an extra read in billing, but required for RBAC.
+     */
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
-    function validTransaction() {
-      return request.resource.data.keys().hasOnly([
-          'fromUid', 'toUid', 'fromAccount', 'toAccount', 'amount',
-          'type', 'status', 'note', 'createdAt'
-        ])
-        && request.resource.data.fromUid == request.auth.uid
-        && request.resource.data.toUid is string
-        && request.resource.data.fromAccount is string
-        && request.resource.data.toAccount is string
-        && request.resource.data.amount is number
-        && request.resource.data.amount > 0
-        && request.resource.data.type in ['transfer', 'deposit', 'withdrawal']
-        && request.resource.data.status in ['completed', 'pending', 'failed']
-        && request.resource.data.note is string
-        && request.resource.data.note.size() <= 200
-        && request.resource.data.createdAt is timestamp;
+    // ── Validation helpers ────────────────────────────────────────────────────
+
+    function validUserWrite() {
+      let d = request.resource.data;
+      return d.uid == request.auth.uid
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 100
+        && d.email is string && d.email.size() <= 320
+        && d.accountNumber is string && d.accountNumber.matches('^MZB-[0-9]{6}$')
+        && d.balance is number && d.balance >= 0
+        && d.role == "user";   // clients can never self-assign "admin"
     }
 
+    function immutableFields() {
+      // Prevent client from changing uid, accountNumber, balance, createdAt, or role
+      return request.resource.data.uid        == resource.data.uid
+          && request.resource.data.accountNumber == resource.data.accountNumber
+          && request.resource.data.balance    == resource.data.balance
+          && request.resource.data.createdAt  == resource.data.createdAt
+          && request.resource.data.role       == resource.data.role;
+    }
+
+    function validTransactionWrite() {
+      let d = request.resource.data;
+      return d.fromUid == request.auth.uid
+        && d.toUid is string
+        && d.fromAccount is string
+        && d.toAccount is string
+        && d.amount is number && d.amount > 0
+        && d.type in ['transfer', 'deposit', 'withdrawal']
+        && d.status in ['completed', 'pending', 'failed']
+        && d.note is string && d.note.size() <= 200;
+    }
+
+    // ── Users collection ──────────────────────────────────────────────────────
     match /users/{uid} {
-      // User documents contain PII. Server Actions use the Admin SDK, so
-      // browser writes are intentionally blocked from changing balances.
-      allow read: if ownsUser(uid);
-      allow create: if ownsUser(uid) && validUser();
-      allow update: if ownsUser(uid)
-        && validUser()
-        && request.resource.data.uid == resource.data.uid
-        && request.resource.data.accountNumber == resource.data.accountNumber
-        && request.resource.data.balance == resource.data.balance
-        && request.resource.data.createdAt == resource.data.createdAt;
+      // Read: own doc OR admin
+      allow read: if isOwner(uid) || isAdmin();
+
+      // Create: only for own doc, with valid data, and role must be "user"
+      allow create: if isOwner(uid) && validUserWrite();
+
+      // Update: own doc, immutable fields cannot change, role stays the same
+      allow update: if isOwner(uid) && immutableFields();
+
+      // Delete: nobody — handled only by Admin SDK server-side
       allow delete: if false;
     }
 
+    // ── Transactions collection ───────────────────────────────────────────────
     match /transactions/{txId} {
+      // Read: participant in the transaction OR admin
       allow read: if signedIn()
         && (resource.data.fromUid == request.auth.uid
-          || resource.data.toUid == request.auth.uid);
-      // Transfers are atomic server-side operations using Admin SDK.
-      allow create: if signedIn() && validTransaction();
+          || resource.data.toUid  == request.auth.uid
+          || isAdmin());
+
+      // Create: only valid transfers from the authenticated user
+      // All real writes go through Admin SDK (which bypasses rules), so this
+      // is a backstop against direct client writes.
+      allow create: if signedIn() && validTransactionWrite();
+
+      // Transactions are immutable once written
       allow update, delete: if false;
+    }
+
+    // ── Notifications collection ──────────────────────────────────────────────
+    match /notifications/{notifId} {
+      // Read/update (mark read): owner only
+      allow read, update: if signedIn()
+        && resource.data.uid == request.auth.uid;
+
+      // Create: authenticated users (server-side writes use Admin SDK)
+      allow create: if signedIn();
+
+      // Delete: nobody
+      allow delete: if false;
+    }
+
+    // ── Catch-all: deny everything else ──────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

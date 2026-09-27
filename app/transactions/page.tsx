@@ -4,7 +4,8 @@
  */
 import { redirect } from "next/navigation";
 import { getSession } from "@/actions/auth";
-import { getUserByUid, getRecentTransactions, formatCents } from "@/lib/firestore";
+import { getUserByUid, getRecentTransactions } from "@/lib/firestore";
+import { formatCents } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import type { Metadata } from "next";
 
@@ -23,7 +24,7 @@ export default async function TransactionsPage() {
   if (!user) redirect("/login");
 
   return (
-    <Layout userName={user.name}>
+    <Layout userName={user.name} isAdmin={user.role === "admin"}>
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div>

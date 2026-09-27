@@ -11,7 +11,8 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { getSession } from "./auth";
-import { getUserByUid, getUserByAccountNumber } from "@/lib/firestore";
+import { getUserByUid, getUserByAccountNumber, formatCents } from "@/lib/firestore";
+import { createNotification } from "./notifications";
 
 export interface TransferState {
   error?: string;
@@ -94,6 +95,13 @@ export async function transferFunds(
         createdAt: FieldValue.serverTimestamp(),
       });
     });
+
+    // Create notification for recipient
+    await createNotification(
+      recipient.uid,
+      `You received ${formatCents(amountCents)} from ${sender.name}`,
+      "transfer_received"
+    );
 
     return { success: true };
   } catch (err) {

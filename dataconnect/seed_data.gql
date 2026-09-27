@@ -1,0 +1,120 @@
+mutation SeedAllData @transaction {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      fullName: "Alice Smith",
+      email: "alice@example.com",
+      createdAt: "2023-01-01T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      fullName: "Bob Jones",
+      email: "bob@example.com",
+      createdAt: "2023-01-02T00:00:00Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002",
+      fullName: "Charlie Brown",
+      email: "charlie@example.com",
+      createdAt: "2023-01-03T00:00:00Z"
+    }
+  ])
+  account_insertMany(data: [
+    {
+      id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10",
+      ownerId: "550e8400-e29b-41d4-a716-446655440000",
+      accountType: "Checking",
+      balance: 1500.50,
+      currency: "USD",
+      nickname: "Main Checking"
+    },
+    {
+      id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      ownerId: "550e8400-e29b-41d4-a716-446655440001",
+      accountType: "Savings",
+      balance: 5000.00,
+      currency: "USD",
+      nickname: "Emergency Fund"
+    },
+    {
+      id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
+      ownerId: "550e8400-e29b-41d4-a716-446655440002",
+      accountType: "Checking",
+      balance: 250.75,
+      currency: "EUR",
+      nickname: "Travel"
+    }
+  ])
+  transaction_insertMany(data: [
+    {
+      id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a20",
+      accountId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10",
+      amount: 50.00,
+      transactionType: "Debit",
+      status: "Completed",
+      timestamp: "2023-02-01T10:00:00Z",
+      description: "Grocery Store"
+    },
+    {
+      id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a21",
+      accountId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+      amount: 1000.00,
+      transactionType: "Credit",
+      status: "Pending",
+      timestamp: "2023-02-02T12:00:00Z",
+      description: "Paycheck"
+    },
+    {
+      id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+      accountId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
+      amount: 25.00,
+      transactionType: "Debit",
+      status: "Completed",
+      timestamp: "2023-02-03T15:30:00Z",
+      description: "Coffee Shop"
+    }
+  ])
+  beneficiary_insertMany(data: [
+    {
+      id: "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a30",
+      ownerId: "550e8400-e29b-41d4-a716-446655440000",
+      nickname: "Mom",
+      recipientAccountNumber: "1234567890"
+    },
+    {
+      id: "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a31",
+      ownerId: "550e8400-e29b-41d4-a716-446655440001",
+      nickname: "Landlord",
+      recipientAccountNumber: "0987654321"
+    },
+    {
+      id: "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a32",
+      ownerId: "550e8400-e29b-41d4-a716-446655440002",
+      nickname: "Utility Co",
+      recipientAccountNumber: "1122334455"
+    }
+  ])
+  notification_insertMany(data: [
+    {
+      id: "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a40",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      message: "Your balance is low.",
+      isRead: false,
+      createdAt: "2023-02-04T09:00:00Z"
+    },
+    {
+      id: "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a41",
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      message: "New deposit received.",
+      isRead: true,
+      createdAt: "2023-02-04T10:00:00Z"
+    },
+    {
+      id: "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a42",
+      userId: "550e8400-e29b-41d4-a716-446655440002",
+      message: "Payment successfully sent.",
+      isRead: false,
+      createdAt: "2023-02-04T11:00:00Z"
+    }
+  ])
+}

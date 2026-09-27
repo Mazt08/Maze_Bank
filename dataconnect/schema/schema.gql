@@ -1,0 +1,39 @@
+type User @table {
+  fullName: String!
+  email: String!
+  createdAt: Timestamp!
+  phoneNumber: String
+  address: String
+}
+
+type Account @table {
+  accountType: String!
+  balance: Float!
+  currency: String!
+  nickname: String
+  owner: User!
+}
+
+type Transaction @table {
+  amount: Float!
+  transactionType: String!
+  status: String!
+  timestamp: Timestamp!
+  description: String
+  recipientAccountId: UUID
+  account: Account!
+}
+
+type Beneficiary @table {
+  nickname: String!
+  recipientAccountNumber: String!
+  owner: User!
+}
+
+type Notification @table {
+  message: String!
+  isRead: Boolean!
+  createdAt: Timestamp!
+  linkUrl: String
+  user: User!
+}

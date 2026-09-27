@@ -84,6 +84,7 @@ export async function registerUser(
         email,
         balance: 500_000, // $5,000.00 welcome credit in cents
         accountNumber,
+        role: "user" as const, // default role — admins are promoted manually
         createdAt: FieldValue.serverTimestamp(),
       });
     return {};

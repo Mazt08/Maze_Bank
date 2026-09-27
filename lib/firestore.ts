@@ -1,6 +1,10 @@
 /**
  * Firestore data types and server-side helpers.
  * Server-only — relies on firebase-admin.
+ *
+ * Note: import 'server-only' is NOT added here because this file is imported
+ * by various server contexts. Instead, server-only guard is enforced via
+ * firebase-admin.ts which this file depends on.
  */
 import { adminDb } from "./firebase-admin";
 import type { Timestamp } from "firebase-admin/firestore";
@@ -13,6 +17,8 @@ export interface UserDoc {
   email: string;
   balance: number; // stored in cents (integer) to avoid float rounding
   accountNumber: string;
+  role?: "user" | "admin"; // user role (default: "user")
+  isFrozen?: boolean; // account freeze status
   createdAt: Timestamp;
 }
 
@@ -23,9 +29,10 @@ export interface TransactionDoc {
   fromAccount: string;
   toAccount: string;
   amount: number; // cents
-  type: "transfer" | "deposit" | "withdrawal";
+  type: "transfer" | "deposit" | "withdrawal" | "admin_adjustment";
   status: "completed" | "pending" | "failed";
   note: string;
+  adminReason?: string; // reason for admin_adjustment transactions
   createdAt: Timestamp;
 }
 
@@ -36,6 +43,8 @@ export interface UserData {
   email: string;
   balance: number;
   accountNumber: string;
+  role?: "user" | "admin";
+  isFrozen?: boolean;
   createdAt: string;
 }
 
@@ -46,9 +55,10 @@ export interface TransactionData {
   fromAccount: string;
   toAccount: string;
   amount: number;
-  type: "transfer" | "deposit" | "withdrawal";
+  type: "transfer" | "deposit" | "withdrawal" | "admin_adjustment";
   status: "completed" | "pending" | "failed";
   note: string;
+  adminReason?: string;
   createdAt: string;
 }
 

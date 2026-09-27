@@ -1,15 +1,27 @@
+import 'server-only';
+
 /**
  * Firebase Admin SDK — server-side only.
  * Never import this in client components or client-side code.
- * Uses a module-level singleton to avoid re-initializing on every hot reload.
+ *
+ * Uses lazy initialization so the Admin SDK is only instantiated when a
+ * server function actually calls it — not at module-import time. This
+ * prevents Next.js from throwing during the static build phase when
+ * environment variables are not present.
  */
-import { cert, getApps, initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
-import { getFirestore } from "firebase-admin/firestore";
+import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
+import { getAuth, type Auth } from "firebase-admin/auth";
+import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
-function getAdminApp() {
+let _app: App | undefined;
+
+function getAdminApp(): App {
+  if (_app) return _app;
+
+  // Re-use an already-initialized app (e.g. from a previous hot-reload cycle)
   if (getApps().length > 0) {
-    return getApps()[0];
+    _app = getApps()[0];
+    return _app;
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
@@ -23,12 +35,42 @@ function getAdminApp() {
     );
   }
 
-  return initializeApp({
+  _app = initializeApp({
     credential: cert({ projectId, clientEmail, privateKey }),
   });
+
+  return _app;
 }
 
-const adminApp = getAdminApp();
+/** Lazily-initialised Firebase Admin Auth instance. */
+export function getAdminAuth(): Auth {
+  return getAuth(getAdminApp());
+}
 
-export const adminAuth = getAuth(adminApp);
-export const adminDb = getFirestore(adminApp);
+/** Lazily-initialised Firestore Admin instance. */
+export function getAdminDb(): Firestore {
+  return getFirestore(getAdminApp());
+}
+
+/**
+ * @deprecated Use getAdminAuth() instead. Kept for gradual migration.
+ */
+export const adminAuth = {
+  get createSessionCookie() {
+    return getAdminAuth().createSessionCookie.bind(getAdminAuth());
+  },
+  get verifySessionCookie() {
+    return getAdminAuth().verifySessionCookie.bind(getAdminAuth());
+  },
+};
+
+/**
+ * @deprecated Use getAdminDb() instead. Kept for gradual migration.
+ */
+export const adminDb = new Proxy({} as Firestore, {
+  get(_target, prop) {
+    const db = getAdminDb();
+    const value = (db as unknown as Record<string | symbol, unknown>)[prop];
+    return typeof value === "function" ? value.bind(db) : value;
+  },
+});

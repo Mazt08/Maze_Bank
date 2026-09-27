@@ -4,7 +4,8 @@
  */
 import { redirect } from "next/navigation";
 import { getSession } from "@/actions/auth";
-import { getUserByUid, formatCents } from "@/lib/firestore";
+import { getUserByUid } from "@/lib/firestore";
+import { formatCents } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import TransferForm from "@/components/TransferForm";
 import type { Metadata } from "next";
@@ -20,7 +21,7 @@ export default async function TransferPage() {
   if (!user) redirect("/login");
 
   return (
-    <Layout userName={user.name}>
+    <Layout userName={user.name} isAdmin={user.role === "admin"}>
       <div className="max-w-lg mx-auto flex flex-col gap-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Send money</h1>

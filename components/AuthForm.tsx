@@ -135,9 +135,6 @@ interface Props {
   mode: "login" | "register";
 }
 
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])\S{8,64}$/;
-const PASSWORD_HINT = "8-64 characters with uppercase, lowercase, number, and symbol";
-
 export default function AuthForm({ mode }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -145,7 +142,7 @@ export default function AuthForm({ mode }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-const [confirm, setConfirm] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Track which fields the user has interacted with (blur-triggered errors)
@@ -298,12 +295,9 @@ if (!name.trim()) {
           type="password"
           autoComplete={isRegister ? "new-password" : "current-password"}
           required
-            minLength={isRegister ? 8 : undefined}
-            maxLength={isRegister ? 64 : undefined}
-            pattern={isRegister ? PASSWORD_PATTERN.source : undefined}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-onBlur={() => touch("password")}
+          onBlur={() => touch("password")}
           aria-invalid={!!passwordError}
           className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"}`}
           placeholder={isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"}

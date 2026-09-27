@@ -4,6 +4,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Open an account — Maze Bank" };
 
+// Never statically prerender — the client Firebase SDK requires browser env vars.
+export const dynamic = "force-dynamic";
+
 export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-brand-dark flex items-center justify-center px-4">
