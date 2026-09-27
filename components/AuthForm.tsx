@@ -135,6 +135,9 @@ interface Props {
   mode: "login" | "register";
 }
 
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])\S{8,64}$/;
+const PASSWORD_HINT = "8-64 characters with uppercase, lowercase, number, and symbol";
+
 export default function AuthForm({ mode }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -142,7 +145,7 @@ export default function AuthForm({ mode }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+const [confirm, setConfirm] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Track which fields the user has interacted with (blur-triggered errors)
@@ -183,6 +186,18 @@ export default function AuthForm({ mode }: Props) {
     startTransition(async () => {
       try {
         if (mode === "register") {
+if (!name.trim()) {
+            setSubmitError("Full name is required.");
+            return;
+          }
+          if (!PASSWORD_PATTERN.test(password)) {
+            setSubmitError(`Password must contain ${PASSWORD_HINT}.`);
+            return;
+          }
+          if (password !== confirm) {
+            setSubmitError("Passwords do not match.");
+            return;
+          }
           const cred = await createUserWithEmailAndPassword(auth, email, password);
           const idToken = await cred.user.getIdToken();
 
@@ -283,15 +298,18 @@ export default function AuthForm({ mode }: Props) {
           type="password"
           autoComplete={isRegister ? "new-password" : "current-password"}
           required
+            minLength={isRegister ? 8 : undefined}
+            maxLength={isRegister ? 64 : undefined}
+            pattern={isRegister ? PASSWORD_PATTERN.source : undefined}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onBlur={() => touch("password")}
+onBlur={() => touch("password")}
           aria-invalid={!!passwordError}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"
-            }`}
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"}`}
           placeholder={isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"}
         />
         {isRegister && <PasswordStrengthMeter password={password} />}
+        {isRegister && <p className="text-xs text-gray-400 mt-1">{PASSWORD_HINT}</p>}
         {isRegister && !password && (
           <p className="mt-1 text-xs text-gray-400">
             Must include uppercase, lowercase, digit &amp; special character.
@@ -311,6 +329,8 @@ export default function AuthForm({ mode }: Props) {
             type="password"
             autoComplete="new-password"
             required
+            minLength={8}
+            maxLength={64}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             onBlur={() => touch("confirm")}
