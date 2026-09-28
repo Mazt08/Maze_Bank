@@ -14,6 +14,7 @@ interface UserProfile {
   email: string;
   accountNumber: string;
   balance: number;
+  role?: "user" | "admin";
   createdAt: string;
 }
 
@@ -23,12 +24,18 @@ interface ActionState {
   success?: boolean;
 }
 
-export default function ProfileClient({ userProfile }: { userProfile: UserProfile }) {
+export default function ProfileClient({
+  userProfile,
+}: {
+  userProfile: UserProfile;
+}) {
   const [displayName, setDisplayName] = useState(userProfile.name);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [nameActionState, setNameActionState] = useState<ActionState>({ isLoading: false });
+  const [nameActionState, setNameActionState] = useState<ActionState>({
+    isLoading: false,
+  });
   const [passwordActionState, setPasswordActionState] = useState<ActionState>({
     isLoading: false,
   });
@@ -55,17 +62,26 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
     e.preventDefault();
 
     if (!newPassword || !confirmPassword || !currentPassword) {
-      setPasswordActionState({ isLoading: false, error: "Please fill all fields." });
+      setPasswordActionState({
+        isLoading: false,
+        error: "Please fill all fields.",
+      });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordActionState({ isLoading: false, error: "Passwords don't match." });
+      setPasswordActionState({
+        isLoading: false,
+        error: "Passwords don't match.",
+      });
       return;
     }
 
     if (newPassword.length < 6) {
-      setPasswordActionState({ isLoading: false, error: "Password must be at least 6 characters." });
+      setPasswordActionState({
+        isLoading: false,
+        error: "Password must be at least 6 characters.",
+      });
       return;
     }
 
@@ -76,7 +92,10 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
       const user = auth.currentUser;
 
       if (!user) {
-        setPasswordActionState({ isLoading: false, error: "Not authenticated." });
+        setPasswordActionState({
+          isLoading: false,
+          error: "Not authenticated.",
+        });
         return;
       }
 
@@ -89,7 +108,8 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
       setConfirmPassword("");
       setTimeout(() => setPasswordActionState({ isLoading: false }), 2000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to update password.";
+      const message =
+        err instanceof Error ? err.message : "Failed to update password.";
       setPasswordActionState({ isLoading: false, error: message });
     }
   }
@@ -98,7 +118,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
     <div className="space-y-8">
       {/* Profile Information */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-brand-dark mb-6">Profile Information</h2>
+        <h2 className="text-2xl font-bold text-brand-dark mb-6">
+          Profile Information
+        </h2>
 
         <div className="space-y-4">
           <div>
@@ -111,7 +133,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
               disabled
               className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-50 text-gray-600 cursor-not-allowed"
             />
-            <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Email cannot be changed
+            </p>
           </div>
 
           <div>
@@ -124,7 +148,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
               disabled
               className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-50 text-gray-600 cursor-not-allowed font-mono"
             />
-            <p className="text-xs text-gray-500 mt-1">This is your unique account identifier</p>
+            <p className="text-xs text-gray-500 mt-1">
+              This is your unique account identifier
+            </p>
           </div>
 
           <div>
@@ -134,7 +160,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
             <div className="text-2xl font-bold text-gold">
               {formatCents(userProfile.balance)}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Your available account balance</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Your available account balance
+            </p>
           </div>
 
           <div>
@@ -143,11 +171,14 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
             </label>
             <input
               type="text"
-              value={new Date(userProfile.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              value={new Date(userProfile.createdAt).toLocaleDateString(
+                "en-US",
+                {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                },
+              )}
               disabled
               className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-50 text-gray-600 cursor-not-allowed"
             />
@@ -157,7 +188,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
 
       {/* Update Display Name */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-brand-dark mb-6">Update Display Name</h2>
+        <h2 className="text-2xl font-bold text-brand-dark mb-6">
+          Update Display Name
+        </h2>
 
         {nameActionState.error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -186,7 +219,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
 
           <button
             type="submit"
-            disabled={nameActionState.isLoading || displayName === userProfile.name}
+            disabled={
+              nameActionState.isLoading || displayName === userProfile.name
+            }
             className="w-full bg-gold hover:bg-gold-light text-brand-dark font-bold py-2 rounded transition-colors disabled:opacity-50"
           >
             {nameActionState.isLoading ? "Updating..." : "Update Display Name"}
@@ -196,7 +231,9 @@ export default function ProfileClient({ userProfile }: { userProfile: UserProfil
 
       {/* Change Password */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-brand-dark mb-6">Change Password</h2>
+        <h2 className="text-2xl font-bold text-brand-dark mb-6">
+          Change Password
+        </h2>
 
         {passwordActionState.error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">

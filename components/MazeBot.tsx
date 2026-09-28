@@ -35,8 +35,12 @@ export default function MazeBot() {
 
     if (result.error) {
       setError(result.error);
-    } else if (result.response) {
-      setMessages((prev) => [...prev, { role: "assistant", content: result.response }]);
+    } else if (typeof result.response === "string") {
+      const assistantResponse = result.response;
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: assistantResponse },
+      ]);
     }
 
     setIsLoading(false);
@@ -75,8 +79,12 @@ export default function MazeBot() {
           <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
             {messages.length === 0 && (
               <div className="text-center text-gray-500 text-sm py-4">
-                <p className="font-semibold text-brand mb-2">👋 Welcome to MazeBot!</p>
-                <p>Ask me questions about your account, balance, or transactions.</p>
+                <p className="font-semibold text-brand mb-2">
+                  👋 Welcome to MazeBot!
+                </p>
+                <p>
+                  Ask me questions about your account, balance, or transactions.
+                </p>
               </div>
             )}
 

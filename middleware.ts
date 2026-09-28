@@ -1,23 +1,21 @@
 /**
- * Next.js Middleware — route protection + RBAC.
- *
- * Runtime: nodejs (not edge) so we can use the Firebase Admin SDK to
- * cryptographically verify session cookies and read Firestore role data.
+ * Next.js Middleware — route protection.
  *
  * Strategy (defense-in-depth):
  *  1. All protected routes: check __session cookie exists (fast path).
- *  2. /admin routes: additionally verify the session cookie and confirm
- *     the user's Firestore role === "admin". Any other value → /dashboard.
- *  3. Server components and server actions re-verify independently —
+ *  2. Server components and server actions re-verify independently —
  *     middleware is a first line of defense, not the only one.
  */
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getAdminAuth, getAdminDb } from "@/lib/firebase-admin";
 
-const PROTECTED = ["/dashboard", "/transfer", "/transactions", "/analytics", "/profile"];
+const PROTECTED = [
+  "/dashboard",
+  "/transfer",
+  "/transactions",
+  "/analytics",
+  "/profile",
+];
 const ADMIN_PREFIX = "/admin";
 const AUTH_ONLY = ["/login", "/register"];
 
@@ -45,26 +43,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // Step 2: cryptographically verify the cookie and read role from Firestore
-    try {
-      const decoded = await getAdminAuth().verifySessionCookie(sessionCookie, true);
-      const userSnap = await getAdminDb()
-        .collection("users")
-        .doc(decoded.uid)
-        .get();
-
-      const role = userSnap.exists ? userSnap.data()?.role : undefined;
-
-      if (role !== "admin") {
-        // Silent redirect — never expose a 403 that confirms the route exists
-        return NextResponse.redirect(new URL("/dashboard", request.url));
-      }
-    } catch {
-      // Invalid/expired cookie → send to login
-      const loginUrl = new URL("/login", request.url);
-      loginUrl.searchParams.set("next", pathname);
-      return NextResponse.redirect(loginUrl);
-    }
+    // Admin authentication and role checks run in app/admin/page.tsx, where
+    // the Node.js-only Firebase Admin SDK is available.
   }
 
   // ── Already-authed users hitting login/register ────────────────────────────

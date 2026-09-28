@@ -38,6 +38,9 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
  */
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+\[\]{};':"\\|,.<>\/?`~]).{8,}$/;
+const PASSWORD_PATTERN = PASSWORD_REGEX;
+const PASSWORD_HINT =
+  "8+ characters with uppercase, lowercase, number, and special character";
 
 // ─── Validation helpers ────────────────────────────────────────────────────────
 
@@ -50,7 +53,8 @@ function validateName(value: string): string | null {
 
 function validateEmail(value: string): string | null {
   if (!value.trim()) return "Email address is required.";
-  if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email address.";
+  if (!EMAIL_REGEX.test(value.trim()))
+    return "Please enter a valid email address.";
   return null;
 }
 
@@ -85,7 +89,10 @@ function getStrength(password: string): Strength | null {
   return "strong";
 }
 
-const STRENGTH_META: Record<Strength, { label: string; color: string; bars: number }> = {
+const STRENGTH_META: Record<
+  Strength,
+  { label: string; color: string; bars: number }
+> = {
   weak: { label: "Weak", color: "bg-red-500", bars: 1 },
   fair: { label: "Fair", color: "bg-orange-400", bars: 2 },
   good: { label: "Good", color: "bg-yellow-400", bars: 3 },
@@ -97,10 +104,13 @@ function PasswordStrengthMeter({ password }: { password: string }) {
   if (!strength) return null;
   const { label, color, bars } = STRENGTH_META[strength];
   const textColor =
-    strength === "weak" ? "text-red-500" :
-      strength === "fair" ? "text-orange-500" :
-        strength === "good" ? "text-yellow-600" :
-          "text-green-600";
+    strength === "weak"
+      ? "text-red-500"
+      : strength === "fair"
+        ? "text-orange-500"
+        : strength === "good"
+          ? "text-yellow-600"
+          : "text-green-600";
 
   return (
     <div className="mt-2" aria-live="polite">
@@ -108,8 +118,9 @@ function PasswordStrengthMeter({ password }: { password: string }) {
         {[1, 2, 3, 4].map((bar) => (
           <div
             key={bar}
-            className={`h-1 flex-1 rounded-full transition-all duration-300 ${bar <= bars ? color : "bg-gray-200"
-              }`}
+            className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+              bar <= bars ? color : "bg-gray-200"
+            }`}
           />
         ))}
       </div>
@@ -123,7 +134,10 @@ function PasswordStrengthMeter({ password }: { password: string }) {
 function FieldError({ message }: { message: string | null }) {
   if (!message) return null;
   return (
-    <p role="alert" className="mt-1 text-xs text-red-600 flex items-center gap-1">
+    <p
+      role="alert"
+      className="mt-1 text-xs text-red-600 flex items-center gap-1"
+    >
       <span aria-hidden="true">⚠</span> {message}
     </p>
   );
@@ -147,7 +161,10 @@ export default function AuthForm({ mode }: Props) {
 
   // Track which fields the user has interacted with (blur-triggered errors)
   const [touched, setTouched] = useState({
-    name: false, email: false, password: false, confirm: false,
+    name: false,
+    email: false,
+    password: false,
+    confirm: false,
   });
 
   const isRegister = mode === "register";
@@ -156,7 +173,8 @@ export default function AuthForm({ mode }: Props) {
   const nameError = isRegister && touched.name ? validateName(name) : null;
   const emailError = touched.email ? validateEmail(email) : null;
   const passwordError = touched.password ? validatePassword(password) : null;
-  const confirmError = isRegister && touched.confirm ? validateConfirm(password, confirm) : null;
+  const confirmError =
+    isRegister && touched.confirm ? validateConfirm(password, confirm) : null;
 
   function touch(field: keyof typeof touched) {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -177,13 +195,16 @@ export default function AuthForm({ mode }: Props) {
       if (validateConfirm(password, confirm)) return;
     } else {
       if (validateEmail(email)) return;
-      if (!password) { setSubmitError("Password is required."); return; }
+      if (!password) {
+        setSubmitError("Password is required.");
+        return;
+      }
     }
 
     startTransition(async () => {
       try {
         if (mode === "register") {
-if (!name.trim()) {
+          if (!name.trim()) {
             setSubmitError("Full name is required.");
             return;
           }
@@ -195,20 +216,37 @@ if (!name.trim()) {
             setSubmitError("Passwords do not match.");
             return;
           }
-          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
           const idToken = await cred.user.getIdToken();
 
-          const regResult = await registerUser(cred.user.uid, name.trim(), email);
-          if (regResult.error) { setSubmitError(regResult.error); return; }
+          const regResult = await registerUser(
+            cred.user.uid,
+            name.trim(),
+            email,
+          );
+          if (regResult.error) {
+            setSubmitError(regResult.error);
+            return;
+          }
 
           const sessionResult = await setSession(idToken);
-          if (sessionResult.error) { setSubmitError(sessionResult.error); return; }
+          if (sessionResult.error) {
+            setSubmitError(sessionResult.error);
+            return;
+          }
         } else {
           const cred = await signInWithEmailAndPassword(auth, email, password);
           const idToken = await cred.user.getIdToken();
 
           const sessionResult = await setSession(idToken);
-          if (sessionResult.error) { setSubmitError(sessionResult.error); return; }
+          if (sessionResult.error) {
+            setSubmitError(sessionResult.error);
+            return;
+          }
         }
 
         router.push("/dashboard");
@@ -232,7 +270,11 @@ if (!name.trim()) {
         } else if (code === "auth/invalid-email") {
           setSubmitError("Please enter a valid email address.");
         } else {
-          setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+          setSubmitError(
+            err instanceof Error
+              ? err.message
+              : "Something went wrong. Please try again.",
+          );
         }
       }
     });
@@ -240,11 +282,13 @@ if (!name.trim()) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-
       {/* ── Full name (register only) ── */}
       {isRegister && (
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Full name
           </label>
           <input
@@ -256,8 +300,9 @@ if (!name.trim()) {
             onChange={(e) => setName(e.target.value)}
             onBlur={() => touch("name")}
             aria-invalid={!!nameError}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${nameError ? "border-red-400 bg-red-50" : "border-gray-300"
-              }`}
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
+              nameError ? "border-red-400 bg-red-50" : "border-gray-300"
+            }`}
             placeholder="Michael De Santa"
           />
           <FieldError message={nameError} />
@@ -266,7 +311,10 @@ if (!name.trim()) {
 
       {/* ── Email ── */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Email address
         </label>
         <input
@@ -278,8 +326,9 @@ if (!name.trim()) {
           onChange={(e) => setEmail(e.target.value)}
           onBlur={() => touch("email")}
           aria-invalid={!!emailError}
-          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${emailError ? "border-red-400 bg-red-50" : "border-gray-300"
-            }`}
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
+            emailError ? "border-red-400 bg-red-50" : "border-gray-300"
+          }`}
           placeholder="you@example.com"
         />
         <FieldError message={emailError} />
@@ -287,7 +336,10 @@ if (!name.trim()) {
 
       {/* ── Password ── */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Password
         </label>
         <input
@@ -300,10 +352,14 @@ if (!name.trim()) {
           onBlur={() => touch("password")}
           aria-invalid={!!passwordError}
           className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"}`}
-          placeholder={isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"}
+          placeholder={
+            isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"
+          }
         />
         {isRegister && <PasswordStrengthMeter password={password} />}
-        {isRegister && <p className="text-xs text-gray-400 mt-1">{PASSWORD_HINT}</p>}
+        {isRegister && (
+          <p className="text-xs text-gray-400 mt-1">{PASSWORD_HINT}</p>
+        )}
         {isRegister && !password && (
           <p className="mt-1 text-xs text-gray-400">
             Must include uppercase, lowercase, digit &amp; special character.
@@ -315,7 +371,10 @@ if (!name.trim()) {
       {/* ── Confirm password (register only) ── */}
       {isRegister && (
         <div>
-          <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="confirm"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Confirm password
           </label>
           <input
@@ -329,12 +388,13 @@ if (!name.trim()) {
             onChange={(e) => setConfirm(e.target.value)}
             onBlur={() => touch("confirm")}
             aria-invalid={!!confirmError}
-            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${confirmError
-              ? "border-red-400 bg-red-50"
-              : confirm && !confirmError
-                ? "border-green-400"
-                : "border-gray-300"
-              }`}
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${
+              confirmError
+                ? "border-red-400 bg-red-50"
+                : confirm && !confirmError
+                  ? "border-green-400"
+                  : "border-gray-300"
+            }`}
             placeholder="Re-enter your password"
           />
           {confirm && !confirmError && (

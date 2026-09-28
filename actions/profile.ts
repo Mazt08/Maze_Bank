@@ -16,7 +16,7 @@ export interface ProfileActionResult {
  * Update user's display name in Firestore
  */
 export async function updateDisplayName(
-  newName: string
+  newName: string,
 ): Promise<ProfileActionResult> {
   const session = await getSession();
   if (!session) return { error: "Not authenticated." };
@@ -37,7 +37,8 @@ export async function updateDisplayName(
 
     return { success: true };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to update name.";
+    const message =
+      err instanceof Error ? err.message : "Failed to update name.";
     return { error: message };
   }
 }
@@ -52,6 +53,7 @@ export async function getUserProfile(): Promise<{
     email: string;
     accountNumber: string;
     balance: number;
+    role?: "user" | "admin";
     createdAt: string;
   };
 }> {
@@ -72,11 +74,14 @@ export async function getUserProfile(): Promise<{
         email: data.email,
         accountNumber: data.accountNumber,
         balance: data.balance,
-        createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+        role: data.role,
+        createdAt:
+          data.createdAt?.toDate().toISOString() || new Date().toISOString(),
       },
     };
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to fetch profile.";
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch profile.";
     return { error: message };
   }
 }
