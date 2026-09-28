@@ -3,18 +3,21 @@
 ## ⚠️ The Issue
 
 You're getting a **401 Authentication Error** which means:
+
 - API key is missing, invalid, or expired
 - The Anthropic server rejected your request
 
 ## ✅ How to Fix
 
 ### Step 1: Get a New API Key
+
 1. Go to: https://console.anthropic.com/api_keys
 2. Sign in with your Anthropic account
 3. Click **"Create Key"** (or use existing if valid)
 4. Copy the full key (starts with `sk-ant-`)
 
 ### Step 2: Update `.env.local`
+
 Replace the old key with your new one:
 
 ```bash
@@ -29,12 +32,14 @@ ANTHROPIC_API_KEY=sk-ant-YOUR_NEW_KEY_HERE
 ```
 
 ### Step 3: Restart Dev Server
+
 ```bash
 # Kill current process (Ctrl+C)
 npm run dev
 ```
 
 ### Step 4: Test Again
+
 1. Go to `/dashboard`
 2. Click 💬 MazeBot
 3. Send a message
@@ -76,23 +81,25 @@ If you see `Key exists: true` but still 401 → Key is invalid/expired
 
 ## 🚨 Common Issues
 
-| Problem | Solution |
-|---------|----------|
-| "Missing Authentication header" | Get new key from console.anthropic.com |
-| "401 Unauthorized" | Key is invalid/revoked/expired |
-| "Key exists: false" | Missing from `.env.local` |
-| Still getting error | Try creating brand new key (don't reuse old) |
+| Problem                         | Solution                                     |
+| ------------------------------- | -------------------------------------------- |
+| "Missing Authentication header" | Get new key from console.anthropic.com       |
+| "401 Unauthorized"              | Key is invalid/revoked/expired               |
+| "Key exists: false"             | Missing from `.env.local`                    |
+| Still getting error             | Try creating brand new key (don't reuse old) |
 
 ---
 
 ## 📝 Example `.env.local`
 
 **Correct format:**
+
 ```
 ANTHROPIC_API_KEY=sk-ant-abc123def456ghi789jkl...
 ```
 
 **Incorrect formats:**
+
 ```
 ANTHROPIC_API_KEY = sk-ant-...     ❌ Spaces around =
 ANTHROPIC_API_KEY='sk-ant-...'     ❌ Quotes around key
@@ -106,11 +113,13 @@ ANTHROPIC_API_KEY=sk-ant-...  abc   ❌ Extra text
 The new error output will be much more helpful. You'll see:
 
 **If key is valid:**
+
 ```
 ✅ Received response from Anthropic
 ```
 
 **If key is still invalid:**
+
 ```
 Authentication Error: Your ANTHROPIC_API_KEY may be invalid or expired
 ```
