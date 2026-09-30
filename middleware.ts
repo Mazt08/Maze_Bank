@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
 
   // ── Already-authed users hitting login/register ────────────────────────────
   if (isAuthOnly && sessionCookie) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));a
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
@@ -67,5 +67,3 @@ export const config = {
     "/register",
   ],
 };
-
-
