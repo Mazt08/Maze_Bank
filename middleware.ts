@@ -1,10 +1,5 @@
 /**
  * Next.js Middleware — route protection.
- *
- * Strategy (defense-in-depth):
- *  1. All protected routes: check __session cookie exists (fast path).
- *  2. Server components and server actions re-verify independently —
- *     middleware is a first line of defense, not the only one.
  */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -36,15 +31,11 @@ export async function middleware(request: NextRequest) {
 
   // ── Admin routes ───────────────────────────────────────────────────────────
   if (isAdmin) {
-    // Step 1: must have a session cookie at all
     if (!sessionCookie) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
     }
-
-    // Admin authentication and role checks run in app/admin/page.tsx, where
-    // the Node.js-only Firebase Admin SDK is available.
   }
 
   // ── Already-authed users hitting login/register ────────────────────────────
@@ -67,4 +58,3 @@ export const config = {
     "/register",
   ],
 };
-
