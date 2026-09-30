@@ -8,7 +8,7 @@
  * Regex validation (register mode):
  *   NAME_REGEX     — letters (incl. accented), spaces, hyphens, apostrophes; 2–50 chars
  *   EMAIL_REGEX    — standard email format
- *   PASSWORD_REGEX — min 8 chars, ≥1 uppercase, ≥1 lowercase, ≥1 digit, ≥1 special char
+ *   password       — required, min 6 chars (Firebase minimum)
  *   confirm        — must match password
  */
 import { useState, useTransition } from "react";
@@ -28,19 +28,8 @@ const NAME_REGEX = /^[a-zA-ZÀ-ÖØ-öø-ÿ\s'\-]{2,50}$/;
 /** Standard email format. */
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
-/**
- * Strong password — all four character classes + minimum length:
- *   (?=.*[a-z])           at least one lowercase letter
- *   (?=.*[A-Z])           at least one uppercase letter
- *   (?=.*\d)              at least one digit
- *   (?=.*[special chars]) at least one special character
- *   .{8,}                 minimum 8 characters total
- */
-const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()\-_=+\[\]{};':"\\|,.<>\/?`~]).{8,}$/;
-const PASSWORD_PATTERN = PASSWORD_REGEX;
-const PASSWORD_HINT =
-  "8+ characters with uppercase, lowercase, number, and special character";
+/** Minimum password length accepted by Firebase Authentication. */
+const PASSWORD_MIN_LENGTH = 6;
 
 // ─── Validation helpers ────────────────────────────────────────────────────────
 
@@ -60,8 +49,8 @@ function validateEmail(value: string): string | null {
 
 function validatePassword(value: string): string | null {
   if (!value) return "Password is required.";
-  if (!PASSWORD_REGEX.test(value))
-    return "Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.";
+  if (value.length < PASSWORD_MIN_LENGTH)
+    return `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`;
   return null;
 }
 
@@ -208,8 +197,14 @@ export default function AuthForm({ mode }: Props) {
             setSubmitError("Full name is required.");
             return;
           }
-          if (!PASSWORD_PATTERN.test(password)) {
-            setSubmitError(`Password must contain ${PASSWORD_HINT}.`);
+          if (!password) {
+            setSubmitError("Password is required.");
+            return;
+          }
+          if (password.length < PASSWORD_MIN_LENGTH) {
+            setSubmitError(
+              `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
+            );
             return;
           }
           if (password !== confirm) {
@@ -352,19 +347,9 @@ export default function AuthForm({ mode }: Props) {
           onBlur={() => touch("password")}
           aria-invalid={!!passwordError}
           className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-colors ${passwordError ? "border-red-400 bg-red-50" : "border-gray-300"}`}
-          placeholder={
-            isRegister ? "Min 8 chars, uppercase, number, symbol" : "••••••••"
-          }
+          placeholder={isRegister ? "Min 6 characters" : "••••••••"}
         />
         {isRegister && <PasswordStrengthMeter password={password} />}
-        {isRegister && (
-          <p className="text-xs text-gray-400 mt-1">{PASSWORD_HINT}</p>
-        )}
-        {isRegister && !password && (
-          <p className="mt-1 text-xs text-gray-400">
-            Must include uppercase, lowercase, digit &amp; special character.
-          </p>
-        )}
         <FieldError message={passwordError} />
       </div>
 
